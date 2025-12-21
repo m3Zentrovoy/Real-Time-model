@@ -6,3 +6,9 @@ __pycache__/
 node_modules/
 .cursor/
 .vscode/
+audio_samples/
+*.wav
+*.mp3
+*.parquet
+hf_datasets/
+wav2vec2_checkpoints/
