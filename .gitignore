@@ -7,9 +7,6 @@ node_modules/
 .cursor/
 .vscode/
 audio_samples/__4XqwA8WxEn8.wav
-*.wav
-*.mp3
-*.parquet
 hf_datasets/
 wav2vec2_checkpoints/
 transkribatorYOUTUBE.ipynb
