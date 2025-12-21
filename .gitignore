@@ -12,3 +12,4 @@ audio_samples/
 *.parquet
 hf_datasets/
 wav2vec2_checkpoints/
+transkribatorYOUTUBE.ipynb
