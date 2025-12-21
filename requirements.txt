@@ -1,0 +1,12 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+numpy>=2.1.0
+torch>=2.2.0
+torchaudio>=2.2.0
+transformers>=4.46.0
+tensorflow>=2.13.0
+tensorflow-hub>=0.16.0
+opensmile>=2.4.1
+soundfile>=0.12.1
+pandas>=2.2.0
+librosa>=0.10.1
