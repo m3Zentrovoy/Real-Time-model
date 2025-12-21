@@ -6,7 +6,7 @@ __pycache__/
 node_modules/
 .cursor/
 .vscode/
-audio_samples/
+audio_samples/__4XqwA8WxEn8.wav
 *.wav
 *.mp3
 *.parquet
