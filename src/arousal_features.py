@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Простой arousal-пайплайн для китайского аудио:
+Simple arousal pipeline for audio:
 - energy (RMS)
-- pitch (YIN): медиана, IQR, jitter
-- voiced_ratio (доля озвученных фреймов)
+- pitch (YIN): median, IQR, jitter
+- voiced_ratio (ratio of voiced frames)
 
-Запуск:
+Usage:
   python arousal_features.py audio.wav --window 2.0 --hop 0.5 --out out.csv
 """
 
@@ -37,11 +37,11 @@ class WindowFeatures:
 def compute_features(
     audio: np.ndarray, sr: int, window_sec: float, hop_sec: float
 ) -> List[WindowFeatures]:
-    """Считает arousal-признаки по скользящим окнам."""
+    """Computes arousal features using sliding windows."""
     win = int(window_sec * sr)
     hop = int(hop_sec * sr)
     if win <= 0 or hop <= 0:
-        raise ValueError("window_sec и hop_sec должны быть > 0")
+        raise ValueError("window_sec and hop_sec must be > 0")
 
     results: List[WindowFeatures] = []
     n = len(audio)
@@ -71,7 +71,7 @@ def compute_features(
                 break
             continue
 
-        # Pitch трек внутри окна (YIN). На коротких окнах уменьшаем frame_length.
+        # Pitch track inside window (YIN). Reduce frame_length for short windows.
         frame_length = min(2048, max(512, len(seg)))
         hop_length = max(128, frame_length // 4)
         fmin, fmax = 50.0, 400.0
@@ -124,7 +124,7 @@ def compute_features(
 
 
 def load_audio(path: Path, target_sr: int = 16000) -> tuple[np.ndarray, int]:
-    """Читает аудио, переводит в моно и target_sr, нормализует до [-1,1]."""
+    """Reads audio, converts to mono and target_sr, normalizes to [-1,1]."""
     audio, sr = sf.read(path, always_2d=False)
     audio = np.asarray(audio, dtype=np.float32)
     if audio.ndim > 1:
@@ -145,17 +145,17 @@ def save_csv(rows: Iterable[WindowFeatures], out_path: Path) -> None:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
-        description="Вычисляет arousal-фичи (energy/pitch/voiced_ratio) по окнам."
+        description="Computes arousal features (energy/pitch/voiced_ratio) by windows."
     )
-    parser.add_argument("audio_path", help="Путь к WAV/аудиофайлу")
-    parser.add_argument("--window", type=float, default=2.0, help="Длина окна, сек (2.0)")
-    parser.add_argument("--hop", type=float, default=0.5, help="Шаг окна, сек (0.5)")
-    parser.add_argument("--out", type=str, default=None, help="Путь к CSV (если не указан — печать в stdout)")
+    parser.add_argument("audio_path", help="Path to WAV/audio file")
+    parser.add_argument("--window", type=float, default=2.0, help="Window length, sec (2.0)")
+    parser.add_argument("--hop", type=float, default=0.5, help="Window hop, sec (0.5)")
+    parser.add_argument("--out", type=str, default=None, help="Path to CSV (if not specified - print to stdout)")
     args = parser.parse_args(argv)
 
     audio_path = Path(args.audio_path)
     if not audio_path.exists():
-        raise SystemExit(f"Файл не найден: {audio_path}")
+        raise SystemExit(f"File not found: {audio_path}")
 
     audio, sr = load_audio(audio_path)
     feats = compute_features(audio, sr, window_sec=args.window, hop_sec=args.hop)
@@ -164,7 +164,7 @@ def main(argv: list[str]) -> int:
         out_path = Path(args.out)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         save_csv(feats, out_path)
-        print(f"Сохранено: {out_path} ({len(feats)} окон)")
+        print(f"Saved: {out_path} ({len(feats)} windows)")
     else:
         df = pd.DataFrame([asdict(r) for r in feats])
         print(df.to_string(index=False, float_format=lambda x: f"{x:0.4f}"))

@@ -1,32 +1,56 @@
 # Real-Time Emotion (Insight Genie)
 
-Short pipeline to estimate agitation from audio in near real-time.
-Includes a main acoustic score and an optional text layer (ASR + sentiment).
+Real-time emotional state estimation (Agitation/Arousal) system based on audio.  
+Includes basic acoustic analysis and an optional text layer (ASR + Sentiment).
 
-## Quick start
-- Install deps: `pip install -r requirements.txt` (or Step 0 in the notebook).
-- Open `adaptive_realtime_emotion.ipynb`.
-- Run steps 1 → 2 → 3 (others are optional).
+## Project Structure
 
-## Workflow
-1. Step 1: pick a file from `audio_samples/` and click **Load file**.
-2. Step 2: add GT labels (CALM / NOT_CALM) in `GT_PRESETS`.
-3. Step 3: see the main plot **Agitation vs Ground Truth**.
-4. Step 3b: metrics on a 2s grid.
-5. Step 3c: feature ranking (optional).
-6. Step 3d: clean vs noise comparison (optional).
-7. Step 4: per-feature plots (optional).
+```text
+Real-Time-model/
+├── src/                    # Source code (analysis algorithms)
+│   ├── emotion_stream.py   # Main class StreamAnalyzer
+│   ├── mood_mapping.py     # Interpretation logic (CALM/NOT_CALM)
+│   └── arousal_features.py # Feature extraction
+├── notebooks/              # Usage examples (Jupyter)
+│   ├── adaptive_realtime_emotion.ipynb # Interactive demonstration
+│   └── verification_demo.ipynb         # Test run on data
+├── apps/
+│   └── streamlit_demo/     # Web interface prototype (Streamlit)
+├── data/
+│   └── audio_samples/      # Audio sample files
+└── tests/
+    └── auto_verify.py      # Automated verification script
+```
 
-## Noise pairs
-- Noisy files must end with `_with_noise` or `_with_noice`.
-- Pairs are auto-built: `test.wav` ↔ `test_with_noise.wav`.
-- GT uses the base key without the noise suffix.
+## Quick Start
 
-## Structure
-- `audio_samples/` — input audio (wav/mp3).
-- `adaptive_realtime_emotion.ipynb` — main pipeline.
-- `arousal_features.py` — standalone feature extraction (CLI).
+1. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Notes
-- Text layer (ASR + sentiment) is optional and may require internet on first model download.
-- Noise can shift the score strongly — use Step 3d to validate robustness.
+2. **Run Demonstration (Jupyter)**:
+   Open `notebooks/adaptive_realtime_emotion.ipynb` and follow the steps inside.
+   
+3. **Run Streamlit Dashboard**:
+   ```bash
+   cd apps/streamlit_demo
+   streamlit run dashboard.py
+   ```
+
+## How It Works
+
+The system accepts an audio stream (in chunks of 0.5-1 sec), extracts acoustic features (loudness, pitch, voice jitter), and calculates an Agitation Score (0-100).
+
+- **Calm**: Score < 60
+- **Not Calm (Agitation/Aggression)**: Score > 60
+
+Additionally, the system attempts to classify frustration indicators and tone (Loud, High-Pitch, Trembling).
+
+## Verification
+
+To run automated tests:
+```bash
+python3 tests/auto_verify.py
+```
+The script will verify the model's operation on reference files (e.g., `china_angry_discuss.wav` from `data/audio_samples`).
